@@ -191,8 +191,8 @@ function sDiamondTool() {
                 if (choiceBrowser) {
                     choiceBrowser.parent().click();
                 }
-                let img = images.read("sqiandao.png");
-                let yimg = images.read("syiqiandao.png");
+                let img = images.read("./Spark/sqiandao.png");
+                let yimg = images.read("./Spark/syiqiandao.png");
                 while (true) {
                     let scr = captureScreen();
                     clickImg(scr, sign);
