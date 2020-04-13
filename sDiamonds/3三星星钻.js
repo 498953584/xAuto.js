@@ -3,12 +3,16 @@ if (!requestScreenCapture()) {
     toast("请求截图失败");
     exit();
 }
-// sleep(500);//请求成功权限后，需暂停一下，直接提示单选款则打包apk会闪退
+sleep(500);//请求成功权限后，需暂停一下，直接提示单选款则打包apk会闪退
 
 setScreenMetrics(1080, 2280);
 main();
 
 function main() {
+    if(!click(200,200)){
+        toastLog("点击测试失败，请尝试重启手机再试！");
+        exit();
+    }
     var num = dialogs.singleChoice("请选择执行动作", ["星钻乐园", "星钻助手（需安装对应软件）", "我的奖品领取"], 0);
     switch (num) {
         case 0:
@@ -24,13 +28,16 @@ function main() {
 }
 
 function sPark() {
-    toastLog("请进入星钻乐园！");
+    launchApp("三星生活助手");
+    className("android.support.v7.app.ActionBar$Tab").desc("发现").findOne().click();
+    id("item_quick_access_name").text("星钻乐园").findOne().parent().click();
+    //toastLog("请进入星钻乐园！");
     id("lifeservice_actionbar_title_text").text("星钻乐园").waitFor();
     var complete = [];
     var ljlq = images.read("./Spark/ljlq.png");
+    var close3 = images.read("./Spark/close3.png");
     var wl = images.read("./Spark/wl.png");
     var grasp = images.read("./Spark/grasp.png");
-    var close3 = images.read("./Spark/close3.png");
     var close1 = images.read("./Spark/close1.png");
     var close2 = images.read("./Spark/close2.png");
     var clickme = images.read("./Spark/click.png");
@@ -70,55 +77,59 @@ function sPark() {
             back();
             sleep(500);
         } else if (clickImg(scr, grasp) || clickImg(scr, cj) || clickImg(scr, clickme)) {
-            //log("抽红包");
+            log("抽红包");
             sleep(100);//过快点击容易点入广告
         } else if (clickImg(scr, grasp2)) {
-            //log("娃娃机");
+            log("娃娃机");
             sleep(1000);
         } else if (clickImg(scr, cck, true)) {
-            //log("猜猜乐");
+            log("猜猜乐");
             click(70, 1800);
             sleep(1000);
         } else if (clickImg(scr, ccy, true)) {
-            //log("猜成语");
+            log("猜成语");
             click(250, 1700);
             sleep(1000);
-
         } else if (clickImg(scr, close1) || clickImg(scr, close2)) {
-            //log("关闭");
+            log("关闭广告");
             let fq = text("放弃奖励").findOne(1000);
             if (fq) {
                 fq.click();
             }
             sleep(500);
         } else {
-            //log("未识别界面!!");
+            log("未识别界面!!");
             if (lastTime == null) {
                 lastTime = new Date();
-            } else {
+            }
+            else{
                 let d = new Date().getTime() - lastTime.getTime();
                 if (d > 10000) {
+                    if(!idContains("lifeservice_actionbar_title_text").exists()){
+                        toastLog("非星钻乐园相关界面，停止运行！");
+                        exit();
+                    }
                     toastLog("在未识别界面超过10秒，自动返回");
                     back();
                     lastTime = null;
                 }
             }
-            continue;
         }
+        scr.recycle();
         sleep(100);
-        lastTime = null;
     }
 }
 
 
 function CheckReward() {
-    toastLog("请进入我的奖励界面！");
+    toastLog("请进入我的奖品界面！");
     id("lifeservice_actionbar_title_text").text("星钻乐园").waitFor();
     idContains("db-content").waitFor();
-    var close3 = images.read("./Spark/close3.png");
     var ljlq = images.read("./Spark/ljlq.png");
+    var close3 = images.read("./Spark/close3.png");
+    toastLog("ok");
     while (true) {
-        let unclaimed = text("待领取").findOne(1000);
+        let unclaimed = text("待领取").findOne(500);
         if (unclaimed) {
             unclaimed.parent().click();
             sleep(200);
@@ -134,12 +145,12 @@ function CheckReward() {
                 sleep(200);
             }
         }
-        className("android.webkit.WebView").text("我的奖品").findOne().scrollForward();;
-        sleep(100);
         if (className("android.view.View").text("没有更多了！").exists()) {
             toastLog("奖品检查完成！");
             exit();
         }
+        className("android.webkit.WebView").text("我的奖品").findOne().scrollForward();
+        sleep(100);
     }
 }
 
@@ -158,7 +169,6 @@ function Convert(type) {
         case "幸运扭蛋机":
             break;
     }
-
 }
 
 function Playing(type) {
@@ -169,7 +179,6 @@ function Playing(type) {
             log("进入游戏：" + txt);
             child.click();
             sleep(3500);
-
         }
         sleep(200);
     }
@@ -191,14 +200,17 @@ function sDiamondTool() {
                 if (choiceBrowser) {
                     choiceBrowser.parent().click();
                 }
-                let img = images.read("./Spark/sqiandao.png");
-                let yimg = images.read("./Spark/syiqiandao.png");
+                let sign = images.read("./Spark/sqiandao.png");
+                let ysign = images.read("./Spark/syiqiandao.png");
                 while (true) {
                     let scr = captureScreen();
-                    clickImg(scr, sign);
-                    if (findImage(scr, ysign, { threshold: 0.8 })) {
+                    if(clickImg(scr, sign)){
+                        log("点击签到");
+                    }
+                    sleep(1000);
+                    if (findImage(scr, ysign, { threshold: 0.9 })) {
                         log("已签到");
-                        sleep(500);
+                        sleep(200);
                         break;
                     }
                     sleep(200);
@@ -211,6 +223,7 @@ function sDiamondTool() {
                     c.click();
                     sleep(500);
                 });
+                sleep(1000);
             } else {
                 textMatches(/签到成功.*/).waitFor();
             }
@@ -220,14 +233,14 @@ function sDiamondTool() {
         } else {
             sleep(2500);
             textMatches(/我要助力|今日已助力/).findOne().click();
-            //toastLog("ggg");
             sleep(500);
             textMatches(/助力成功.*|活动已结束/).waitFor();
-            //toastLog("ss");
             id("lifeservice_menu_close").findOne().click();
             sleep(1500);
         }
     }
+    back();
+    toastLog("全部领取完毕，请注意浏览器签到及最后三个礼包领取情况！");
 }
 
 
