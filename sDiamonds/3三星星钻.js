@@ -9,7 +9,7 @@ setScreenMetrics(1080, 2280);
 main();
 
 function main() {
-    if(!click(200,200)){
+    if (!click(200, 200)) {
         toastLog("点击测试失败，请尝试重启手机再试！");
         exit();
     }
@@ -27,6 +27,8 @@ function main() {
     }
 }
 
+var grasp, grasp2, cck, ccy, clickme, cj;
+
 function sPark() {
     launchApp("三星生活助手");
     className("android.support.v7.app.ActionBar$Tab").desc("发现").findOne().click();
@@ -37,14 +39,10 @@ function sPark() {
     var ljlq = images.read("./Spark/ljlq.png");
     var close3 = images.read("./Spark/close3.png");
     var wl = images.read("./Spark/wl.png");
-    var grasp = images.read("./Spark/grasp.png");
     var close1 = images.read("./Spark/close1.png");
     var close2 = images.read("./Spark/close2.png");
-    var clickme = images.read("./Spark/click.png");
-    var grasp2 = images.read("./Spark/grasp2.png");
-    var cck = images.read("./Spark/cck.png");
-    var ccy = images.read("./Spark/ccy.png");
-    var cj = images.read("./Spark/cj.png");
+    getDeviceInfo();
+
     var lastTime = null;
     toastLog("ok");
     while (true) {
@@ -61,6 +59,9 @@ function sPark() {
                 }
                 if (complete.length == 6) {
                     toastLog("全部领取完成！");
+                    back();
+                    sleep(200);
+                    back();
                     exit();
                 }
                 sleep(200);
@@ -102,10 +103,10 @@ function sPark() {
             if (lastTime == null) {
                 lastTime = new Date();
             }
-            else{
+            else {
                 let d = new Date().getTime() - lastTime.getTime();
                 if (d > 10000) {
-                    if(!idContains("lifeservice_actionbar_title_text").exists()){
+                    if (!idContains("lifeservice_actionbar_title_text").exists()) {
                         toastLog("非星钻乐园相关界面，停止运行！");
                         exit();
                     }
@@ -114,9 +115,13 @@ function sPark() {
                     lastTime = null;
                 }
             }
+            scr.recycle();
+            sleep(500);
+            continue;
         }
         scr.recycle();
         sleep(100);
+        lastTime = null;
     }
 }
 
@@ -204,7 +209,7 @@ function sDiamondTool() {
                 let ysign = images.read("./Spark/syiqiandao.png");
                 while (true) {
                     let scr = captureScreen();
-                    if(clickImg(scr, sign)){
+                    if (clickImg(scr, sign)) {
                         log("点击签到");
                     }
                     sleep(1000);
@@ -215,7 +220,8 @@ function sDiamondTool() {
                     }
                     sleep(200);
                 }
-            } else if (text("签到聚合页").exists()) {
+            } else if (txt.indexOf("签到聚合") > -1) {
+                text("签到聚合页").waitFor();
                 log("签到礼包");
                 sleep(1000);
                 let img = className("android.view.View").text("0").findOne().parent().parent();
@@ -223,7 +229,7 @@ function sDiamondTool() {
                     c.click();
                     sleep(500);
                 });
-                sleep(1000);
+                sleep(800);
             } else {
                 textMatches(/签到成功.*/).waitFor();
             }
@@ -262,5 +268,30 @@ function clickImg(scr, img, bc) {
         return true;
     } else {
         return false;
+    }
+}
+
+function getDeviceInfo() {
+    switch (device.model) {
+        case "SM-N9760":
+            grasp = images.read("./Spark/grasp.png");
+            clickme = images.read("./Spark/click.png");
+            grasp2 = images.read("./Spark/grasp2.png");
+            cck = images.read("./Spark/cck.png");
+            ccy = images.read("./Spark/ccy.png");
+            cj = images.read("./Spark/cj.png");
+            log(device.model);
+            break;
+        case "SM-G9730":
+        case "SM-G9750":
+        default:
+            grasp = images.read("./Spark/grasps102k.png");
+            clickme = images.read("./Spark/clickmes102k.png");
+            grasp2 = images.read("./Spark/grasp2s102k.png");
+            cck = images.read("./Spark/ccks102k.png");
+            ccy = images.read("./Spark/ccys102k.png");
+            cj = images.read("./Spark/cjs102k.png");
+            log(device.model);
+            break;
     }
 }
