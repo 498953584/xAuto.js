@@ -1,6 +1,6 @@
 "auto";
 if (!requestScreenCapture()) {
-    toast("请求截图失败");
+    toastLog("请求截图失败");
     exit();
 }
 sleep(500);//请求成功权限后，需暂停一下，直接提示单选款则打包apk会闪退
@@ -27,7 +27,7 @@ function main() {
     }
 }
 
-var grasp, grasp2, cck, ccy, clickme, cj;
+var grasp, grasp2, cck, ccy, clickme, cj, wl;
 
 function sPark() {
     launchApp("三星生活助手");
@@ -38,10 +38,9 @@ function sPark() {
     var complete = [];
     var ljlq = images.read("./Spark/ljlq.png");
     var close3 = images.read("./Spark/close3.png");
-    var wl = images.read("./Spark/wl.png");
     var close1 = images.read("./Spark/close1.png");
     var close2 = images.read("./Spark/close2.png");
-    getDeviceInfo();
+    getDeviceConfigure();
 
     var lastTime = null;
     toastLog("ok");
@@ -258,12 +257,14 @@ function sDiamondTool() {
  */
 function clickImg(scr, img, bc) {
     //截图并找图
-    var p = findImage(scr, img, {
+    let p = findImage(scr, img, {
         threshold: 0.9
     });
     if (p) {
         if (!bc) {
-            click(p.x + img.getWidth() / 2, p.y + img.getHeight() / 2);
+            let widht = (p.x + img.getWidth() / 2) * (device.widht / 1080),
+                height = (p.y + img.getHeight() / 2) * (device.height / 2280);
+            click(widht, height);
         }
         return true;
     } else {
@@ -271,27 +272,29 @@ function clickImg(scr, img, bc) {
     }
 }
 
-function getDeviceInfo() {
-    switch (device.model) {
-        case "SM-N9760":
-            grasp = images.read("./Spark/grasp.png");
-            clickme = images.read("./Spark/click.png");
-            grasp2 = images.read("./Spark/grasp2.png");
-            cck = images.read("./Spark/cck.png");
-            ccy = images.read("./Spark/ccy.png");
-            cj = images.read("./Spark/cj.png");
-            log(device.model);
-            break;
-        case "SM-G9730":
-        case "SM-G9750":
-        default:
-            grasp = images.read("./Spark/grasps102k.png");
-            clickme = images.read("./Spark/clickmes102k.png");
-            grasp2 = images.read("./Spark/grasp2s102k.png");
-            cck = images.read("./Spark/ccks102k.png");
-            ccy = images.read("./Spark/ccys102k.png");
-            cj = images.read("./Spark/cjs102k.png");
-            log(device.model);
-            break;
+function getDeviceConfigure() {
+    let model = device.model;
+    if (/SM-G97[\dA-Za-z]*/.test(model)) {
+        grasp = images.read("./Spark/grasps102k.jpg");
+        clickme = images.read("./Spark/clickmes102k.jpg");
+        grasp2 = images.read("./Spark/grasp2s102k.jpg");
+        cck = images.read("./Spark/ccks102k.jpg");
+        ccy = images.read("./Spark/ccys102k.jpg");
+        cj = images.read("./Spark/cjs102k.jpg");
+        wl = images.read("./Spark/wls102k.jpg");
     }
+    else {
+        grasp = images.read("./Spark/grasp.png");
+        clickme = images.read("./Spark/click.png");
+        grasp2 = images.read("./Spark/grasp2.png");
+        cck = images.read("./Spark/cck.png");
+        ccy = images.read("./Spark/ccy.png");
+        cj = images.read("./Spark/cj.png");
+        wl = images.read("./Spark/wl.png");
+        if (!/SM-N97[\dA-Za-z]*/.test(model)) {
+            log(device.model + "未适配，默认使用Note10+配置，可能出现长时间未识别问题！");
+        }
+    }
+    log(device.model);
+
 }
