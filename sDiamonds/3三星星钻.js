@@ -33,7 +33,7 @@ function main() {
     }
 }
 
-var grasp, grasp2, cck, ccy, clickme, cj, wl;
+var grasp, grasp2, cck, ccy, clickme, cj, wl, ljlq,close3;
 
 function sPark() {
     launchApp("三星生活助手");
@@ -42,11 +42,9 @@ function sPark() {
     //toastLog("请进入星钻乐园！");
     id("lifeservice_actionbar_title_text").text("星钻乐园").waitFor();
     var complete = [];
-    var ljlq = images.read("./Spark/ljlq.png");
-    var close3 = images.read("./Spark/close3.png");
     var close1 = images.read("./Spark/close1.png");
     var close2 = images.read("./Spark/close2.png");
-    getDeviceConfigure();
+    getDeviceConfigure(0);
 
     var lastTime = null;
     toastLog("ok");
@@ -144,8 +142,7 @@ function CheckReward() {
     toastLog("请进入我的奖品界面！");
     id("lifeservice_actionbar_title_text").text("星钻乐园").waitFor();
     idContains("db-content").waitFor();
-    var ljlq = images.read("./Spark/ljlq.png");
-    var close3 = images.read("./Spark/close3.png");
+    getDeviceConfigure(1);
     toastLog("ok");
     while (true) {
         let unclaimed = text("待领取").findOne(500);
@@ -289,25 +286,33 @@ function clickImg(scr, img, bc) {
     }
 }
 
-function getDeviceConfigure() {
+function getDeviceConfigure(type) {
     let model = device.model;
     if (/SM-G97[\dA-Za-z]*/.test(model)) {
-        grasp = images.read("./Spark/grasps102k.jpg");
-        clickme = images.read("./Spark/clickmes102k.jpg");
-        grasp2 = images.read("./Spark/grasp2s102k.jpg");
-        cck = images.read("./Spark/ccks102k.jpg");
-        ccy = images.read("./Spark/ccys102k.jpg");
-        cj = images.read("./Spark/cjs102k.jpg");
-        wl = images.read("./Spark/wls102k.jpg");
+        if (type == 0) {
+            grasp = images.read("./Spark/grasps102k.jpg");
+            clickme = images.read("./Spark/clickmes102k.jpg");
+            grasp2 = images.read("./Spark/grasp2s102k.jpg");
+            cck = images.read("./Spark/ccks102k.jpg");
+            ccy = images.read("./Spark/ccys102k.jpg");
+            cj = images.read("./Spark/cjs102k.jpg");
+            wl = images.read("./Spark/wls102k.jpg");
+        }
+        ljlq = images.read("./Spark/ljlqs102k.jpg");
+        close3 = images.read("./Spark/close3s102k.jpg");
     }
     else {
-        grasp = images.read("./Spark/grasp.png");
-        clickme = images.read("./Spark/click.png");
-        grasp2 = images.read("./Spark/grasp2.png");
-        cck = images.read("./Spark/cck.png");
-        ccy = images.read("./Spark/ccy.png");
-        cj = images.read("./Spark/cj.png");
-        wl = images.read("./Spark/wl.png");
+        if (type == 0) {
+            grasp = images.read("./Spark/grasp.png");
+            clickme = images.read("./Spark/click.png");
+            grasp2 = images.read("./Spark/grasp2.png");
+            cck = images.read("./Spark/cck.png");
+            ccy = images.read("./Spark/ccy.png");
+            cj = images.read("./Spark/cj.png");
+            wl = images.read("./Spark/wl.png");
+        }
+        ljlq = images.read("./Spark/ljlq.png");
+        close3 = images.read("./Spark/close3.png");
         if (!/SM-N97[\dA-Za-z]*/.test(model)) {
             log(device.model + "未适配，默认使用Note10+配置，可能出现长时间未识别问题！");
         }
