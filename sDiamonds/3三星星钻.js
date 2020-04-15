@@ -5,7 +5,13 @@ if (!requestScreenCapture()) {
 }
 sleep(500);//请求成功权限后，需暂停一下，直接提示单选款则打包apk会闪退
 
-setScreenMetrics(1080, 2280);
+// setScreenMetrics(1080, 2280);
+
+/**
+ * 分辨率大小
+ */
+var deviceSize = getDeviceSize();
+
 main();
 
 function main() {
@@ -66,30 +72,39 @@ function sPark() {
                 sleep(200);
             }
         } else if (clickImg(scr, ljlq)) {
-            log("中奖了" + textMatches(/\d*星钻/).findOne().text() + "，开始领星钻!");
+            log("中了" + textMatches(/\d*星钻/).findOne().text() + "，开始领星钻!");
             sleep(1500);
             textMatches(/领取成功，订单详情请查看|正在火速处理中，查看进度请点击/).waitFor();
             while (!clickImg(captureScreen(), close3)) {
                 sleep(200);
             };
-        } else if (clickImg(scr, wl)) {
+        } else if (clickImg(scr, wl, true)) {
             log("领完了");
             back();
             sleep(500);
-        } else if (clickImg(scr, grasp) || clickImg(scr, cj) || clickImg(scr, clickme)) {
+        } else if (clickImg(scr, grasp) || clickImg(scr, clickme)) {
             log("抽红包");
             sleep(300);//过快点击容易点入广告
-        } else if (clickImg(scr, grasp2)) {
-            log("娃娃机");
-            sleep(1000);
+        } else if (clickImg(scr, grasp2) || clickImg(scr, cj)) {
+            log("娃娃机、寻宝");
+            sleep(3000);
         } else if (clickImg(scr, cck, true)) {
             log("猜猜乐");
-            click(70, 1800);
-            sleep(1000);
+            let title = textMatches(/今日(免费.*|机会已用完)/).findOne();
+            let tParent = title.parent().parent();
+            tParent.children().forEach(function (child) {
+                if (child.childCount() == 2) {
+                    child.child(0).click();
+                }
+            });
+            sleep(500);
         } else if (clickImg(scr, ccy, true)) {
             log("猜成语");
-            click(250, 1700);
-            sleep(1000);
+            let title = textMatches(/第[一二三四五六七八九十]题/).findOne();
+            let tParent = title.parent();
+            tParent.child(tParent.childCount() - 1).click();
+            // click(250, 1700);
+            sleep(500);
         } else if (clickImg(scr, close1) || clickImg(scr, close2)) {
             log("关闭广告");
             let fq = text("放弃奖励").findOne(1000);
@@ -104,12 +119,12 @@ function sPark() {
             }
             else {
                 let d = new Date().getTime() - lastTime.getTime();
-                if (d > 10000) {
+                if (d > 13000) {
                     if (!idContains("lifeservice_actionbar_title_text").exists()) {
                         toastLog("非星钻乐园相关界面，停止运行！");
                         exit();
                     }
-                    toastLog("在未识别界面超过10秒，自动返回");
+                    toastLog("在未识别界面超过13秒，自动返回");
                     back();
                     lastTime = null;
                 }
@@ -141,7 +156,7 @@ function CheckReward() {
             while (!clickImg(captureScreen(), ljlq)) {
                 sleep(200);
             }
-            log("中奖了" + textMatches(/\d*星钻/).findOne().text() + "，开始领星钻!");
+            log("中了" + textMatches(/\d*星钻/).findOne().text() + "，开始领星钻!");
             sleep(1500);
             text("领取成功，订单详情请查看").waitFor();
             while (!clickImg(captureScreen(), close3)) {
@@ -261,8 +276,10 @@ function clickImg(scr, img, bc) {
     });
     if (p) {
         if (!bc) {
-            let widht = (p.x + img.getWidth() / 2) * (device.widht / 1080),
-                height = (p.y + img.getHeight() / 2) * (device.height / 2280);
+            let widht = (p.x + img.getWidth() / 2);
+            let height = (p.y + img.getHeight() / 2);
+            // widht = widht * (deviceSize.width / 1080);
+            // height = height * (deviceSize.height / 2280);
             click(widht, height);
         }
         return true;
@@ -295,5 +312,13 @@ function getDeviceConfigure() {
             log(device.model + "未适配，默认使用Note10+配置，可能出现长时间未识别问题！");
         }
     }
-    log(device.model);
+    log(device.model + "  " + deviceSize.width.toString() + "*" + deviceSize.height.toString());
+}
+
+/**
+ * 获取屏幕分辨率
+ */
+function getDeviceSize() {
+    let screen = captureScreen();
+    return { width: screen.getWidth(), height: screen.getHeight() };
 }
