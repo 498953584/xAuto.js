@@ -19,6 +19,7 @@ function main() {
         toastLog("点击测试失败，请尝试重启手机再试！");
         exit();
     }
+    log(device.model + "  " + deviceSize.width.toString() + "*" + deviceSize.height.toString() + "    " + app.versionName);
     var num = dialogs.singleChoice("请选择执行动作", ["星钻乐园", "星钻助手（需安装对应软件）", "我的奖品领取"], 0);
     switch (num) {
         case 0:
@@ -131,9 +132,9 @@ function sPark() {
             sleep(500);
             continue;
         }
+        lastTime = null;
         scr.recycle();
         sleep(100);
-        lastTime = null;
     }
 }
 
@@ -317,7 +318,6 @@ function getDeviceConfigure(type) {
             log(device.model + "未适配，默认使用Note10+配置，可能出现长时间未识别问题！");
         }
     }
-    log(device.model + "  " + deviceSize.width.toString() + "*" + deviceSize.height.toString());
 }
 
 /**
