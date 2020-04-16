@@ -34,7 +34,7 @@ function main() {
     }
 }
 
-var grasp, grasp2, cck, ccy, clickme, cj, wl, ljlq,close3;
+var grasp, grasp2, cck, ccy, clickme, cj, wl, ljlq, close3;
 
 function sPark() {
     launchApp("三星生活助手");
@@ -83,7 +83,7 @@ function sPark() {
             sleep(500);
         } else if (clickImg(scr, grasp) || clickImg(scr, clickme)) {
             log("抽红包");
-            sleep(300);//过快点击容易点入广告
+            sleep(500);//过快点击容易点入广告
         } else if (clickImg(scr, grasp2) || clickImg(scr, cj)) {
             log("娃娃机、寻宝");
             sleep(3000);
@@ -104,8 +104,11 @@ function sPark() {
             tParent.child(tParent.childCount() - 1).click();
             // click(250, 1700);
             sleep(500);
-        } else if (clickImg(scr, close1) || clickImg(scr, close2)) {
+        } else if (id("close").exists() || clickMultiColors(scr, "#FEFEFE", [[-15,-15,"#FEFEFE"],[15,15,"#FEFEFE"],[14,-14,"#FEFEFE"],[-11,11,"#FEFEFE"]]) ||
+            clickImg(scr, close1) || clickImg(scr, close2)) {
             log("关闭广告");
+            let c = id("close").findOne(500);
+            if(c){c.click();}
             let fq = text("放弃奖励").findOne(1000);
             if (fq) {
                 fq.click();
@@ -217,15 +220,19 @@ function sDiamondTool() {
                 if (choiceBrowser) {
                     choiceBrowser.parent().click();
                 }
-                let sign = images.read("./Spark/sqiandao.png");
-                let ysign = images.read("./Spark/syiqiandao.png");
+                // let sign = images.read("./Spark/sqiandao.png");
+                // let ysign = images.read("./Spark/syiqiandao.png");
                 while (true) {
                     let scr = captureScreen();
-                    if (clickImg(scr, sign)) {
+                    // if (clickImg(scr, sign)) {
+                    //     log("点击签到");
+                    // }
+                    if(clickMultiColors(scr,"#FAFAFA",[[-22,-12,"#E98881"],[51,30,"#E98881"],[59,14,"#FAFAFA"],[97,54,"#E98881"]]))
+                    {
                         log("点击签到");
                     }
                     sleep(1000);
-                    if (findImage(scr, ysign, { threshold: 0.9 })) {
+                    if (findMultiColors(scr,"#FAFAFA",[[-22,-12,"#D0D0D0"],[51,30,"#D0D0D0"],[59,14,"#FAFAFA"],[97,54,"#D0D0D0"]])) {
                         log("已签到");
                         sleep(200);
                         break;
@@ -287,9 +294,24 @@ function clickImg(scr, img, bc) {
     }
 }
 
+function clickMultiColors(scr, firstColor, colors, bc) {
+    let p = findMultiColors(scr, firstColor, colors);
+    if (p) {
+        log(p);
+        if (!bc) {
+            click(p.x, p.y);
+        }
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+
 function getDeviceConfigure(type) {
     let model = device.model;
-    if (/SM-G97[\dA-Za-z]*/.test(model)) {
+    if (1440 == deviceSize.width) {
         if (type == 0) {
             grasp = images.read("./Spark/grasps102k.jpg");
             clickme = images.read("./Spark/clickmes102k.jpg");
@@ -314,9 +336,6 @@ function getDeviceConfigure(type) {
         }
         ljlq = images.read("./Spark/ljlq.png");
         close3 = images.read("./Spark/close3.png");
-        if (!/SM-N97[\dA-Za-z]*/.test(model)) {
-            log(device.model + "未适配，默认使用Note10+配置，可能出现长时间未识别问题！");
-        }
     }
 }
 
