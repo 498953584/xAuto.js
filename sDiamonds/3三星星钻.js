@@ -41,7 +41,9 @@ function sPark() {
     className("android.support.v7.app.ActionBar$Tab").desc("发现").findOne().click();
     id("item_quick_access_name").text("星钻乐园").findOne().parent().click();
     //toastLog("请进入星钻乐园！");
-    id("lifeservice_actionbar_title_text").text("星钻乐园").waitFor();
+    let titleBounds = id("lifeservice_actionbar_title_text").text("星钻乐园").findOne().parent().bounds();
+    let closeRegion = { region: [titleBounds.right, titleBounds.bottom + 100, 100, 400] };
+    let closeRegion1 = { region: [getScaleX(600), getScaleY(2660), 250, 300] };
     var complete = [];
     var close1 = images.read("./Spark/close1.png");
     var close2 = images.read("./Spark/close2.png");
@@ -104,11 +106,12 @@ function sPark() {
             tParent.child(tParent.childCount() - 1).click();
             // click(250, 1700);
             sleep(500);
-        } else if (id("close").exists() || clickMultiColors(scr, "#FEFEFE", [[-15,-15,"#FEFEFE"],[15,15,"#FEFEFE"],[14,-14,"#FEFEFE"],[-11,11,"#FEFEFE"]]) ||
-            clickImg(scr, close1) || clickImg(scr, close2)) {
+        } else if (id("close").exists() || clickImg(scr, close1) || clickImg(scr, close2) ||
+            clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion) ||
+            clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion1)) {
             log("关闭广告");
             let c = id("close").findOne(500);
-            if(c){c.click();}
+            if (c) { c.click(); }
             let fq = text("放弃奖励").findOne(1000);
             if (fq) {
                 fq.click();
@@ -121,12 +124,12 @@ function sPark() {
             }
             else {
                 let d = new Date().getTime() - lastTime.getTime();
-                if (d > 13000) {
+                if (d > 10000) {
                     if (!idContains("lifeservice_actionbar_title_text").exists()) {
                         toastLog("非星钻乐园相关界面，停止运行！");
                         exit();
                     }
-                    toastLog("在未识别界面超过13秒，自动返回");
+                    toastLog("在未识别界面超过10秒，自动返回");
                     back();
                     lastTime = null;
                 }
@@ -137,7 +140,7 @@ function sPark() {
         }
         lastTime = null;
         scr.recycle();
-        sleep(100);
+        sleep(200);
     }
 }
 
@@ -206,6 +209,7 @@ function Playing(type) {
 
 function sDiamondTool() {
     launchApp("星钻助手");
+    let thread = threads.start(function () { while (true) { click("我要助力"); sleep(500); } });
     for (let child of id("root").findOne().children()) {
         let txt = child.text();
         log(txt);
@@ -220,19 +224,11 @@ function sDiamondTool() {
                 if (choiceBrowser) {
                     choiceBrowser.parent().click();
                 }
-                // let sign = images.read("./Spark/sqiandao.png");
-                // let ysign = images.read("./Spark/syiqiandao.png");
                 while (true) {
                     let scr = captureScreen();
-                    // if (clickImg(scr, sign)) {
-                    //     log("点击签到");
-                    // }
-                    if(clickMultiColors(scr,"#FAFAFA",[[-22,-12,"#E98881"],[51,30,"#E98881"],[59,14,"#FAFAFA"],[97,54,"#E98881"]]))
-                    {
-                        log("点击签到");
-                    }
+                    click(getScaleX(700), getScaleY(1350));
                     sleep(1000);
-                    if (findMultiColors(scr,"#FAFAFA",[[-22,-12,"#D0D0D0"],[51,30,"#D0D0D0"],[59,14,"#FAFAFA"],[97,54,"#D0D0D0"]])) {
+                    if (findMultiColors(scr, "#FAFAFA", [[-22, -12, "#D0D0D0"], [51, 30, "#D0D0D0"], [59, 14, "#FAFAFA"], [97, 54, "#D0D0D0"]])) {
                         log("已签到");
                         sleep(200);
                         break;
@@ -264,6 +260,8 @@ function sDiamondTool() {
             sleep(1500);
         }
     }
+    //停止线程执行
+    thread.interrupt();
     back();
     toastLog("全部领取完毕，请注意浏览器签到及最后三个礼包领取情况！");
 }
@@ -284,8 +282,6 @@ function clickImg(scr, img, bc) {
         if (!bc) {
             let widht = (p.x + img.getWidth() / 2);
             let height = (p.y + img.getHeight() / 2);
-            // widht = widht * (deviceSize.width / 1080);
-            // height = height * (deviceSize.height / 2280);
             click(widht, height);
         }
         return true;
@@ -294,8 +290,8 @@ function clickImg(scr, img, bc) {
     }
 }
 
-function clickMultiColors(scr, firstColor, colors, bc) {
-    let p = findMultiColors(scr, firstColor, colors);
+function clickMultiColors(scr, firstColor, colors, options, bc) {
+    let p = findMultiColors(scr, firstColor, colors, options);
     if (p) {
         log(p);
         if (!bc) {
@@ -345,4 +341,11 @@ function getDeviceConfigure(type) {
 function getDeviceSize() {
     let screen = captureScreen();
     return { width: screen.getWidth(), height: screen.getHeight() };
+}
+
+function getScaleX(x) {
+    return x * deviceSize.width / 1440;
+}
+function getScaleY(y) {
+    return y * deviceSize.height / 3040;
 }
