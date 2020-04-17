@@ -210,7 +210,7 @@ function Playing(type) {
 
 function sDiamondTool() {
     launchApp("星钻助手");
-    let thread = threads.start(function () { while (true) { click("我要助力"); sleep(500); } });
+    let thread = threads.start(function () { while (true) { click("我要助力"); click("今日已助力"); sleep(1000); } });
     for (let child of id("root").findOne().children()) {
         let txt = child.text();
         log(txt);
@@ -225,6 +225,7 @@ function sDiamondTool() {
                 if (choiceBrowser) {
                     choiceBrowser.parent().click();
                 }
+                sleep(1000);
                 while (true) {
                     let scr = captureScreen();
                     click(getScaleX(700), getScaleY(1350));
@@ -254,11 +255,10 @@ function sDiamondTool() {
             sleep(500);
         } else {
             sleep(2500);
-            textMatches(/我要助力|今日已助力/).findOne().click();
-            sleep(500);
             textMatches(/助力成功.*|活动已结束/).waitFor();
+            sleep(500);
             id("lifeservice_menu_close").findOne().click();
-            sleep(1500);
+            sleep(1000);
         }
     }
     //停止线程执行
