@@ -127,8 +127,8 @@ function sPark() {
         }
         else if (clickImg(scr, zhb, true) || clickImg(scr, zjd, true)) {
             log("砸红包、金蛋");
-            let title = textMatches(/今日((免费|剩余).*|机会已用完)/).findOne();
-            if (title.text() != "今日机会已用完") {
+            let title = textMatches(/今日((免费|剩余).*|机会已用完|次数用完)/).findOne();
+            if (title.text() != "今日机会已用完" && title.text() != "今日次数用完") {
                 let tParent = title.parent();
                 tParent.children().forEach(function (c) {
                     if (c.indexInParent() == title.indexInParent() + 1) {
