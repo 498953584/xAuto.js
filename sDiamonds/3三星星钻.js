@@ -53,13 +53,13 @@ function sPark() {
     toastLog("ok");
     while (true) {
         let scr = captureScreen();
+        let txt = null;
         if (text("乐享福利 玩赚星钻").exists()) {
             for (let child of idContains("box12").findOne().children()) {
-                let txt = child.text();
                 if (complete.indexOf(txt) == -1 && child.indexInParent() > 5 && child.clickable()) {
                     log("进入游戏：" + txt);
+                    txt = child.text();
                     child.click();
-                    complete.push(txt);
                     sleep(3500);
                     break;
                 }
@@ -81,8 +81,13 @@ function sPark() {
             };
         } else if (clickImg(scr, wl, true)) {
             log("领完了");
+            complete.push(txt);
             back();
-            sleep(500);
+            sleep(1500);
+            if (!text("乐享福利 玩赚星钻").exists()) {
+                back();
+                sleep(500);
+            }
         } else if (clickImg(scr, grasp) || clickImg(scr, clickme)) {
             log("抽红包");
             sleep(500);//过快点击容易点入广告
@@ -106,9 +111,9 @@ function sPark() {
             tParent.child(tParent.childCount() - 1).click();
             // click(250, 1700);
             sleep(500);
-        } else if (id("close").exists() || clickImg(scr, close1) || clickImg(scr, close2) ||
-            clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion) ||
-            clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion1)) {
+        } else if (id("close").exists() || clickImg(scr, close1) || clickImg(scr, close2) || (clickImg(scr, close3) && !textMatches(/\d*星钻/).exists()) ||
+            ((clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion) ||
+                clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion1)) && !text("登录").exists())) {
             log("关闭广告");
             let c = id("close").findOne(500);
             if (c) { c.click(); }
@@ -117,7 +122,13 @@ function sPark() {
                 fq.click();
             }
             sleep(500);
-        } else {
+        }
+        else if (currentPackage() == "com.eg.android.AlipayGphone") {
+            log("支付宝返回");
+            back();
+            sleep(1000);
+        }
+        else {
             log("未识别界面!!");
             if (lastTime == null) {
                 lastTime = new Date();
