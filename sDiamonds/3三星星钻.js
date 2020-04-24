@@ -1,3 +1,4 @@
+toastLog("请手动打开Auto星钻辅助功能，开启后退出软件再打开");
 "auto";
 if (!requestScreenCapture()) {
     toastLog("请求截图失败");
@@ -34,32 +35,35 @@ function main() {
     }
 }
 
-var grasp, grasp2, cck, ccy, clickme, cj, wl, ljlq, close3;
+var grasp, grasp2, cck, ccy, clickme, cj, wl, ljlq, close3, ggl, zhb, zjd, start;
 
 function sPark() {
     launchApp("三星生活助手");
     className("android.support.v7.app.ActionBar$Tab").desc("发现").findOne().click();
     id("item_quick_access_name").text("星钻乐园").findOne().parent().click();
-    //toastLog("请进入星钻乐园！");
+    
     let titleBounds = id("lifeservice_actionbar_title_text").text("星钻乐园").findOne().parent().bounds();
     let closeRegion = { region: [titleBounds.right, titleBounds.bottom + 100, 100, 400] };
-    let closeRegion1 = { region: [getScaleX(600), getScaleY(2660), 250, 300] };
-    var complete = [];
+    let closeRegion1 = { region: [getScaleX(600), getScaleY(2660), 250, getScaleY(300)] };
     var close1 = images.read("./Spark/close1.png");
     var close2 = images.read("./Spark/close2.png");
     getDeviceConfigure(0);
-
+    
+    var complete = [];
     var lastTime = null;
+    let txt = null;
+    let clickIndex = 0;
     toastLog("ok");
+    sleep(1500);
     while (true) {
         let scr = captureScreen();
-        let txt = null;
         if (text("乐享福利 玩赚星钻").exists()) {
             for (let child of idContains("box12").findOne().children()) {
+                txt = child.text();
                 if (complete.indexOf(txt) == -1 && child.indexInParent() > 5 && child.clickable()) {
                     log("进入游戏：" + txt);
-                    txt = child.text();
                     child.click();
+                    clickIndex = 0;
                     sleep(3500);
                     break;
                 }
@@ -81,9 +85,11 @@ function sPark() {
             };
         } else if (clickImg(scr, wl, true)) {
             log("领完了");
-            complete.push(txt);
+            if (txt) {
+                complete.push(txt);
+            }            
             back();
-            sleep(1500);
+            sleep(2000);
             if (!text("乐享福利 玩赚星钻").exists()) {
                 back();
                 sleep(500);
@@ -91,29 +97,57 @@ function sPark() {
         } else if (clickImg(scr, grasp) || clickImg(scr, clickme)) {
             log("抽红包");
             sleep(500);//过快点击容易点入广告
-        } else if (clickImg(scr, grasp2) || clickImg(scr, cj)) {
-            log("娃娃机、寻宝");
+        } else if (clickImg(scr, grasp2) || clickImg(scr, cj) || clickImg(scr, start)) {
+            log("娃娃机、寻宝、惊喜");
             sleep(3000);
         } else if (clickImg(scr, cck, true)) {
             log("猜猜乐");
             let title = textMatches(/今日(免费.*|机会已用完)/).findOne();
-            let tParent = title.parent().parent();
-            tParent.children().forEach(function (child) {
-                if (child.childCount() == 2) {
-                    child.child(0).click();
-                }
-            });
+            if (title.text() != "今日机会已用完") {
+                let tParent = title.parent().parent();
+                tParent.children().forEach(function (child) {
+                    if (child.childCount() == 2) {
+                        child.child(0).click();
+                    }
+                });
+            }
             sleep(500);
         } else if (clickImg(scr, ccy, true)) {
             log("猜成语");
-            let title = textMatches(/第[一二三四五六七八九十]题/).findOne();
-            let tParent = title.parent();
-            tParent.child(tParent.childCount() - 1).click();
-            // click(250, 1700);
+            // let title = textMatches(/第[一二三四五六七八九十]题/).findOne();
+            // let tParent = title.parent();
+            // tParent.child(tParent.childCount() - 1).click();
+            click(getScaleX(300), getScaleY(2200));
+            sleep(1500);
+        }
+        else if (clickImg(scr, ggl, true)) {
+            log("刮刮乐");
+            swipe(getScaleX(600), getScaleY(1500), getScaleX(700), getScaleY(1500), 200);
+            sleep(5000);
+        }
+        else if (clickImg(scr, zhb, true) || clickImg(scr, zjd, true)) {
+            log("砸红包、金蛋");
+            let title = textMatches(/今日((免费|剩余).*|机会已用完)/).findOne();
+            if (title.text() != "今日机会已用完") {
+                let tParent = title.parent();
+                tParent.children().forEach(function (c) {
+                    if (c.indexInParent() == title.indexInParent() + 1) {
+                        for (let cc of c.children()) {
+                            if (cc.child(0).childCount() == 0 && cc.indexInParent() >= clickIndex) {
+                                cc.click();
+                                clickIndex++;
+                                sleep(3500);
+                                break;
+                            }
+                        }
+                    }
+                });
+            }
             sleep(500);
-        } else if (id("close").exists() || clickImg(scr, close1) || clickImg(scr, close2) || (clickImg(scr, close3) && !textMatches(/\d*星钻/).exists()) ||
-            ((clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion) ||
-                clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion1)) && !text("登录").exists())) {
+        }
+        else if (id("close").exists() || clickImg(scr, close1) || clickImg(scr, close2) || (!textMatches(/\d*星钻/).exists() && clickImg(scr, close3)) ||
+            (!text("登录").exists() && (clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion) ||
+                clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion1)))) {
             log("关闭广告");
             let c = id("close").findOne(500);
             if (c) { c.click(); }
@@ -327,6 +361,10 @@ function getDeviceConfigure(type) {
             ccy = images.read("./Spark/ccys102k.jpg");
             cj = images.read("./Spark/cjs102k.jpg");
             wl = images.read("./Spark/wls102k.jpg");
+            ggl = images.read("./Spark/ggl2k.png");
+            zhb = images.read("./Spark/zhb2k.png");
+            zjd = images.read("./Spark/zjd2k.png");
+            start = images.read("./Spark/start2k.png");
         }
         ljlq = images.read("./Spark/ljlqs102k.jpg");
         close3 = images.read("./Spark/close3s102k.jpg");
@@ -340,6 +378,10 @@ function getDeviceConfigure(type) {
             ccy = images.read("./Spark/ccy.png");
             cj = images.read("./Spark/cj.png");
             wl = images.read("./Spark/wl.png");
+            ggl = images.read("./Spark/ggl.png");
+            zhb = images.read("./Spark/zhb.png");
+            zjd = images.read("./Spark/zjd.png");
+            start = images.read("./Spark/start.png");
         }
         ljlq = images.read("./Spark/ljlq.png");
         close3 = images.read("./Spark/close3.png");
