@@ -41,14 +41,15 @@ function sPark() {
     launchApp("三星生活助手");
     className("android.support.v7.app.ActionBar$Tab").desc("发现").findOne().click();
     id("item_quick_access_name").text("星钻乐园").findOne().parent().click();
-    
+
     let titleBounds = id("lifeservice_actionbar_title_text").text("星钻乐园").findOne().parent().bounds();
     let closeRegion = { region: [titleBounds.right, titleBounds.bottom + 100, 100, 400] };
     let closeRegion1 = { region: [getScaleX(600), getScaleY(2660), 250, getScaleY(300)] };
     var close1 = images.read("./Spark/close1.png");
     var close2 = images.read("./Spark/close2.png");
+    var close4 = images.read("./Spark/close42k.png");
     getDeviceConfigure(0);
-    
+
     var complete = [];
     var lastTime = null;
     let txt = null;
@@ -87,7 +88,7 @@ function sPark() {
             log("领完了");
             if (txt) {
                 complete.push(txt);
-            }            
+            }
             back();
             sleep(2000);
             if (!text("乐享福利 玩赚星钻").exists()) {
@@ -145,7 +146,7 @@ function sPark() {
             }
             sleep(500);
         }
-        else if (id("close").exists() || clickImg(scr, close1) || clickImg(scr, close2) || (!textMatches(/\d*星钻/).exists() && clickImg(scr, close3)) ||
+        else if (id("close").exists() || clickImg(scr, close1) || clickImg(scr, close2) || clickImg(scr, close4) || (!textMatches(/\d*星钻/).exists() && clickImg(scr, close3)) ||
             (!text("登录").exists() && (clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion) ||
                 clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion1)))) {
             log("关闭广告");
