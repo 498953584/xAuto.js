@@ -1,0 +1,15 @@
+{
+  "assets": [],
+  "build": {
+    "build_id": "40F13EA0-2",
+    "build_number": 2,
+    "build_time": 1587831105105
+  },
+  "useFeatures": [],
+  "main": "main.js",
+  "name": "Auto星钻",
+  "packageName": "com.LeoScript.SamsungDiamonds",
+  "scripts": {},
+  "versionCode": 16,
+  "versionName": "2.1.5"
+}

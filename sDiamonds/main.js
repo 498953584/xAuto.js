@@ -105,12 +105,16 @@ function sPark() {
             log("猜猜乐");
             let title = textMatches(/今日(免费.*|机会已用完)/).findOne();
             if (title.text() != "今日机会已用完") {
-                let tParent = title.parent().parent();
-                tParent.children().forEach(function (child) {
-                    if (child.childCount() == 2) {
-                        child.child(0).click();
-                    }
-                });
+                try {
+                    let tParent = title.parent().parent();
+                    tParent.children().forEach(function (child) {
+                        if (child.childCount() == 2) {
+                            child.child(0).click();
+                        }
+                    });
+                } catch (error) {
+                    log(error);
+                }
             }
             sleep(500);
         } else if (clickImg(scr, ccy, true)) {
@@ -130,19 +134,23 @@ function sPark() {
             log("砸红包、金蛋");
             let title = textMatches(/今日((免费|剩余).*|机会已用完|次数用完)/).findOne();
             if (title.text() != "今日机会已用完" && title.text() != "今日次数用完") {
-                let tParent = title.parent();
-                tParent.children().forEach(function (c) {
-                    if (c.indexInParent() == title.indexInParent() + 1) {
-                        for (let cc of c.children()) {
-                            if (cc.child(0).childCount() == 0 && cc.indexInParent() >= clickIndex) {
-                                cc.click();
-                                clickIndex++;
-                                sleep(3500);
-                                break;
+                try {
+                    let tParent = title.parent();
+                    tParent.children().forEach(function (c) {
+                        if (c.indexInParent() == title.indexInParent() + 1) {
+                            for (let cc of c.children()) {
+                                if (cc.child(0).childCount() == 0 && cc.indexInParent() >= clickIndex) {
+                                    cc.click();
+                                    clickIndex++;
+                                    sleep(3500);
+                                    break;
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                } catch (error) {
+                    log(error);
+                }
             }
             sleep(500);
         }
@@ -181,7 +189,7 @@ function sPark() {
                 }
             }
             scr.recycle();
-            sleep(500);
+            sleep(1000);
             continue;
         }
         lastTime = null;
@@ -255,11 +263,11 @@ function Playing(type) {
 
 function sDiamondTool() {
     launchApp("星钻助手");
-    let thread = threads.start(function () { while (true) { click("我要助力"); click("今日已助力"); sleep(1000); } });
+    let thread = threads.start(function () { while (true) { click("我要助力"); click("今日已助力"); sleep(1500); } });
     for (let child of id("root").findOne().children()) {
         let txt = child.text();
         log(txt);
-        //if(txt!="三星浏览器能赠能花签到"){continue;}
+        if (txt.indexOf("签到聚合") == -1) { continue; }
         child.click();
         if (txt.indexOf("签到") > -1) {
             log("签到");
@@ -270,7 +278,7 @@ function sDiamondTool() {
                 if (choiceBrowser) {
                     choiceBrowser.parent().click();
                 }
-                sleep(1000);
+                sleep(2000);
                 while (true) {
                     let scr = captureScreen();
                     click(getScaleX(700), getScaleY(1350));
@@ -287,9 +295,12 @@ function sDiamondTool() {
                 log("签到礼包");
                 sleep(1000);
                 let img = className("android.view.View").text("0").findOne().parent().parent();
-                img.children().find(className("android.widget.Image")).forEach(function (c) {
-                    c.click();
-                    sleep(500);
+                img.children().find(className("android.widget.Image")).click();
+                sleep(1000);
+                textMatches(/\+\d+星钻/).find().forEach(function(t){
+                    if(t.text() != ""){
+                        log(t.text());
+                    }
                 });
                 sleep(800);
             } else {
@@ -397,9 +408,18 @@ function getDeviceSize() {
     return { width: screen.getWidth(), height: screen.getHeight() };
 }
 
+/**
+ * 获取缩放的x轴坐标
+ * @param {x轴值} x 
+ */
 function getScaleX(x) {
     return x * deviceSize.width / 1440;
 }
+
+/**
+ * 获取缩放的y轴坐标
+ * @param {y轴值} y 
+ */
 function getScaleY(y) {
     return y * deviceSize.height / 3040;
 }
