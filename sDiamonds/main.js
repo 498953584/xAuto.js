@@ -16,7 +16,7 @@ var deviceSize = getDeviceSize();
 main();
 
 function main() {
-    if (!click(200, 200)) {
+    if (!click(0, 0)) {
         toastLog("点击测试失败，请尝试重启手机再试！");
         exit();
     }
@@ -128,7 +128,7 @@ function sPark() {
         else if (clickImg(scr, ggl, true)) {
             log("刮刮乐");
             swipe(getScaleX(600), getScaleY(1500), getScaleX(700), getScaleY(1500), 200);
-            sleep(5000);
+            sleep(3500);
         }
         else if (clickImg(scr, zhb, true) || clickImg(scr, zjd, true)) {
             log("砸红包、金蛋");
@@ -136,18 +136,21 @@ function sPark() {
             if (title.text() != "今日机会已用完" && title.text() != "今日次数用完") {
                 try {
                     let tParent = title.parent();
+                    let ok = false;
                     tParent.children().forEach(function (c) {
-                        if (c.indexInParent() == title.indexInParent() + 1) {
+                        if (c && c.indexInParent() == title.indexInParent() + 1) {
                             for (let cc of c.children()) {
-                                if (cc.child(0).childCount() == 0 && cc.indexInParent() >= clickIndex) {
+                                if (cc.child(0) && cc.child(0).childCount() == 0) {
                                     cc.click();
-                                    clickIndex++;
-                                    sleep(3500);
-                                    break;
+                                    // clickIndex++;
+                                    ok = true;
+                                    // break;
+                                    sleep(50);
                                 }
                             }
                         }
                     });
+                    if (ok) { sleep(3500); }
                 } catch (error) {
                     log(error);
                 }
@@ -189,7 +192,7 @@ function sPark() {
                 }
             }
             scr.recycle();
-            sleep(1000);
+            sleep(500);
             continue;
         }
         lastTime = null;
@@ -206,11 +209,12 @@ function CheckReward() {
     getDeviceConfigure(1);
     toastLog("ok");
     while (true) {
-        let unclaimed = text("待领取").findOne(500);
+        let unclaimed = textMatches(/待领取|账号错误/).findOne(500);
         if (unclaimed) {
             unclaimed.parent().click();
             sleep(200);
             while (!click("去领取"));
+            click("去填写");
             sleep(2000);
             while (!clickImg(captureScreen(), ljlq)) {
                 sleep(200);
@@ -267,7 +271,7 @@ function sDiamondTool() {
     for (let child of id("root").findOne().children()) {
         let txt = child.text();
         log(txt);
-        if (txt.indexOf("签到聚合") == -1) { continue; }
+        // if (txt.indexOf("签到聚合") == -1) { continue; }
         child.click();
         if (txt.indexOf("签到") > -1) {
             log("签到");
@@ -295,11 +299,13 @@ function sDiamondTool() {
                 log("签到礼包");
                 sleep(1000);
                 let img = className("android.view.View").text("0").findOne().parent().parent();
-                img.children().find(className("android.widget.Image")).click();
-                sleep(1000);
-                textMatches(/\+\d+星钻/).find().forEach(function(t){
-                    if(t.text() != ""){
+                img.children().find(className("android.widget.Image")).forEach(function (c) {
+                    c.click();
+                    sleep(500);
+                    let t = textMatches(/\+\d+星钻/).findOne(1000);
+                    if (t) {
                         log(t.text());
+                        click("开心收下");
                     }
                 });
                 sleep(800);
