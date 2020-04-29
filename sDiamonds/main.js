@@ -1,4 +1,4 @@
-toastLog("请手动打开Auto星钻辅助功能，开启后退出软件再打开");
+log("请手动打开Auto星钻辅助功能，开启后退出软件再打开");
 "auto";
 if (!requestScreenCapture()) {
     toastLog("请求截图失败");
@@ -157,9 +157,7 @@ function sPark() {
             }
             sleep(500);
         }
-        else if (id("close").exists() || clickImg(scr, close1) || clickImg(scr, close2) || clickImg(scr, close4) || (!textMatches(/\d*星钻/).exists() && clickImg(scr, close3)) ||
-            (!text("登录").exists() && (clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion) ||
-                clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion1)))) {
+        else if (isAd(scr, closeRegion, closeRegion1, [close1, close2, close4])) {
             log("关闭广告");
             let c = id("close").findOne(500);
             if (c) { c.click(); }
@@ -235,6 +233,28 @@ function CheckReward() {
     }
 }
 
+function isAd(scr, closeRegion, closeRegion1, closes) {
+    if (id("close").exists()) {
+        return true;
+    }
+    if (clickImgs(scr, closes)) {
+        return true;
+    }
+    if (!textMatches(/\d*星钻/).exists() && clickImg(scr, close3)) {
+        return true;
+    }
+    if (text("登录").exists()) {
+        return false;
+    }
+    if (clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion)) {
+        return true;
+    }
+    if (clickMultiColors(scr, "#FEFEFE", [[-15, -15, "#FEFEFE"], [15, 15, "#FEFEFE"], [14, -14, "#FEFEFE"], [-11, 11, "#FEFEFE"]], closeRegion1)) {
+        return true;
+    }
+    return false;
+}
+
 function Convert(type) {
     switch (type) {
         case "我爱猜成语":
@@ -266,8 +286,13 @@ function Playing(type) {
 }
 
 function sDiamondTool() {
-    launchApp("星钻助手");
+    launchApp("三星生活助手");
+    className("android.support.v7.app.ActionBar$Tab").desc("商城").findOne().click();
+    text("新机宝藏").findOne().click();
     let thread = threads.start(function () { while (true) { click("我要助力"); click("今日已助力"); sleep(1500); } });
+    textMatches(/助力成功.*|活动已结束|此活动仅限指定应用参与，暂不支持直接访问/).waitFor();
+    sleep(500);
+    launchApp("星钻助手");
     for (let child of id("root").findOne().children()) {
         let txt = child.text();
         log(txt);
@@ -317,7 +342,12 @@ function sDiamondTool() {
             sleep(500);
         } else {
             sleep(2500);
-            textMatches(/助力成功.*|活动已结束/).waitFor();
+            let content = textMatches(/助力成功.*|活动已结束|此活动仅限指定应用参与，暂不支持直接访问/).findOne().text();
+            if (content == "此活动仅限指定应用参与，暂不支持直接访问") {
+                content += "；请手动进入！";
+                toast(content);
+            }
+            log(content);
             sleep(500);
             id("lifeservice_menu_close").findOne().click();
             sleep(1000);
@@ -351,6 +381,24 @@ function clickImg(scr, img, bc) {
     } else {
         return false;
     }
+}
+
+function clickImgs(scr, imgs, bc) {
+    for (let i = 0; i < imgs.length; i++) {
+        let img = imgs[i];
+        let p = findImage(scr, img, {
+            threshold: 0.9
+        });
+        if (p) {
+            if (!bc) {
+                let widht = (p.x + img.getWidth() / 2);
+                let height = (p.y + img.getHeight() / 2);
+                click(widht, height);
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 function clickMultiColors(scr, firstColor, colors, options, bc) {
